@@ -5,32 +5,26 @@ import (
 	"net/http"
 )
 
+// Engine  represents HTTP request process unit
 type Engine struct {
-	routes map[string]http.HandlerFunc
+	router *router
 }
 
+// New function creates a new Engine
 func New() *Engine {
-	return &Engine{make(map[string]http.HandlerFunc)}
+	return &Engine{newRouter()}
 }
 
-func (engine *Engine) addRoute(method string, path string, handler http.HandlerFunc) {
-	key := fmt.Sprintf("%s-%s", method, path)
-	engine.routes[key] = handler
-}
-
+// Get method add a path mapping for HTTP Get method
 func (engine *Engine) Get(path string, handler http.HandlerFunc) {
-	engine.addRoute(http.MethodGet, path, handler)
+	engine.router.addRoute(http.MethodGet, path, handler)
 }
 
 func (engine *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	key := fmt.Sprintf("%s-%s", r.Method, r.URL.Path)
-	if handler, ok := engine.routes[key]; ok {
-		handler(w, r)
-	} else {
-		fmt.Fprintf(w, "404 NOT FOUND: %s\n", r.URL.Path)
-	}
+	engine.router.handle(w, r)
 }
 
+// Run method starts the app
 func (engine *Engine) Run(port string) (err error) {
 	fmt.Printf("Server started on port %s!\n", port)
 	return http.ListenAndServe(port, engine)
