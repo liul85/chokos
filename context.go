@@ -1,7 +1,6 @@
 package covtiser
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -15,7 +14,7 @@ func newContext(w http.ResponseWriter, req *http.Request) *Context {
 	return &Context{w, req}
 }
 
-func (context *Context) String(statusCode int, template string, params ...interface{}) {
+func (context *Context) String(statusCode int, content string) {
 	context.writer.WriteHeader(statusCode)
-	context.writer.Write([]byte(fmt.Sprintf(template, params...)))
+	context.writer.Write([]byte(content))
 }
