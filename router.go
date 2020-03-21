@@ -23,6 +23,6 @@ func (router *router) handle(context *Context) {
 	if handler, ok := router.handlers[key]; ok {
 		handler(context)
 	} else {
-		context.String(http.StatusNotFound, "404 NOT FOUND: %s\n", context.request.URL.Path)
+		context.String(http.StatusNotFound, fmt.Sprintf("404 NOT FOUND: %s\n", context.request.URL.Path))
 	}
 }
