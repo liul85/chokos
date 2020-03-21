@@ -5,6 +5,9 @@ import (
 	"net/http"
 )
 
+// HandlerFunc is the func that handle each route mapping
+type HandlerFunc func(*Context)
+
 // Engine  represents HTTP request process unit
 type Engine struct {
 	router *router
@@ -16,12 +19,13 @@ func New() *Engine {
 }
 
 // Get method add a path mapping for HTTP Get method
-func (engine *Engine) Get(path string, handler http.HandlerFunc) {
+func (engine *Engine) Get(path string, handler HandlerFunc) {
 	engine.router.addRoute(http.MethodGet, path, handler)
 }
 
 func (engine *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	engine.router.handle(w, r)
+	context := newContext(w, r)
+	engine.router.handle(context)
 }
 
 // Run method starts the app
