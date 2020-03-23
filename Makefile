@@ -1,6 +1,6 @@
 default: test
 
 test:
-		gotest -v
+		go test -v ./...
 
 .PHONY: default test
