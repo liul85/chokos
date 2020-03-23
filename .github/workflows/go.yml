@@ -31,6 +31,4 @@ jobs:
         fi
 
     - name: Test
-      run: |
-        go get -u github.com/rakyll/gotest
-        make test
+      run: go test -v ./...
