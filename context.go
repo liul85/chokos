@@ -1,4 +1,4 @@
-package covtiser
+package chokos
 
 import (
 	"net/http"

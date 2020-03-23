@@ -1,3 +1,3 @@
-# Covtiser
+# Chokos
 
-![Go](https://github.com/liul85/covtiser/workflows/Go/badge.svg?branch=master)
+![Go](https://github.com/liul85/chokos/workflows/Go/badge.svg?branch=master)
