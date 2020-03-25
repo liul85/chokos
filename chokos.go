@@ -23,6 +23,11 @@ func (engine *Engine) Get(path string, handler HandlerFunc) {
 	engine.router.addRoute(http.MethodGet, path, handler)
 }
 
+// Post method add a path mapping for HTTP Post method
+func (engine *Engine) Post(path string, handler HandlerFunc) {
+	engine.router.addRoute(http.MethodPost, path, handler)
+}
+
 func (engine *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	context := newContext(w, r)
 	engine.router.handle(context)
