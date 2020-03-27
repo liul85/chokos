@@ -9,10 +9,17 @@ import (
 type Context struct {
 	writer  http.ResponseWriter
 	request *http.Request
+	params  map[string]string
+}
+
+// Param method return value for specified parameter
+func (context *Context) Param(key string) string {
+	value, _ := context.params[key]
+	return value
 }
 
 func newContext(w http.ResponseWriter, req *http.Request) *Context {
-	return &Context{w, req}
+	return &Context{w, req, make(map[string]string)}
 }
 
 func (context *Context) String(statusCode int, content string) {
