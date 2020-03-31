@@ -10,6 +10,9 @@ type Context struct {
 	writer  http.ResponseWriter
 	request *http.Request
 	params  map[string]string
+	// middleware
+	handlers []HandlerFunc
+	index    int
 }
 
 // Param method return value for specified parameter
@@ -19,7 +22,13 @@ func (context *Context) Param(key string) string {
 }
 
 func newContext(w http.ResponseWriter, req *http.Request) *Context {
-	return &Context{w, req, make(map[string]string)}
+	return &Context{
+		writer:   w,
+		request:  req,
+		params:   make(map[string]string),
+		handlers: make([]HandlerFunc, 0),
+		index:    -1,
+	}
 }
 
 func (context *Context) String(statusCode int, content string) {
@@ -49,4 +58,14 @@ func (context *Context) HTML(statusCode int, html string) {
 func (context *Context) Data(statusCode int, data []byte) {
 	context.writer.WriteHeader(statusCode)
 	context.writer.Write(data)
+}
+
+// Next calls all middlewares
+func (context *Context) Next() {
+	context.index++
+	s := len(context.handlers)
+	for ; context.index < s; context.index++ {
+		context.handlers[context.index](context)
+	}
+
 }

@@ -3,6 +3,7 @@ package chokos
 import (
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 // HandlerFunc is the func that handle each route mapping
@@ -46,7 +47,14 @@ func (engine *Engine) Post(path string, handler HandlerFunc) {
 }
 
 func (engine *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	var middlewares []HandlerFunc
+	for _, group := range engine.groups {
+		if strings.HasPrefix(r.URL.Path, group.prefix) {
+			middlewares = append(middlewares, group.middlewares...)
+		}
+	}
 	context := newContext(w, r)
+	context.handlers = middlewares
 	engine.router.handle(context)
 }
 

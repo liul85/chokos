@@ -32,11 +32,15 @@ func (router *router) handle(context *Context) {
 	node, params := router.getRoute(context.request.Method, context.request.URL.Path)
 	if node != nil {
 		context.params = params
-		key := fmt.Sprintf("%s-%s", context.request.Method, context.request.URL.Path)
-		router.handlers[key](context)
+		key := fmt.Sprintf("%s-%s", context.request.Method, node.pattern)
+		context.handlers = append(context.handlers, router.handlers[key])
 	} else {
-		context.String(http.StatusNotFound, fmt.Sprintf("404 NOT FOUND: %s\n", context.request.URL.Path))
+		context.handlers = append(context.handlers, func(c *Context) {
+			c.String(http.StatusNotFound, fmt.Sprintf("404 NOT FOUND: %s\n", context.request.URL.Path))
+		})
 	}
+
+	context.Next()
 }
 
 func (router *router) getRoute(method string, path string) (*node, map[string]string) {
@@ -83,4 +87,9 @@ func parsePattern(pattern string) []string {
 		}
 	}
 	return parts
+}
+
+// Use is able to allow user to use middlewares
+func (group *RouterGroup) Use(middlewares ...HandlerFunc) {
+	group.middlewares = append(group.middlewares, middlewares...)
 }
