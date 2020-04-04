@@ -3,6 +3,7 @@ package chokos
 import (
 	"fmt"
 	"net/http"
+	"path"
 	"strings"
 )
 
@@ -92,4 +93,26 @@ func parsePattern(pattern string) []string {
 // Use is able to allow user to use middlewares
 func (group *RouterGroup) Use(middlewares ...HandlerFunc) {
 	group.middlewares = append(group.middlewares, middlewares...)
+}
+
+func (group *RouterGroup) createStaticHandler(relativePath string, fs http.FileSystem) HandlerFunc {
+	absolutePath := path.Join(group.prefix, relativePath)
+	fileServer := http.StripPrefix(absolutePath, http.FileServer(fs))
+	return func(context *Context) {
+		file := context.Param("filepath")
+
+		if _, err := fs.Open(file); err != nil {
+			context.writer.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		fileServer.ServeHTTP(context.writer, context.request)
+	}
+}
+
+//Static serve asserts
+func (group *RouterGroup) Static(relativePath string, root string) {
+	handler := group.createStaticHandler(relativePath, http.Dir(root))
+	urlPattern := path.Join(relativePath, "/*filepath")
+	group.Get(urlPattern, handler)
 }
